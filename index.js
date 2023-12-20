@@ -28,7 +28,7 @@ app.get("/api", (req, res) => {
 
 app.use("/auth", authRoutes);
 app.use("/profile",authMiddleware,profileRoutes);
-// app.use("/slider",sliderRoutes);
+app.use("/slider",sliderRoutes);
 
 app.listen(PORT, () => {
   console.log("Express API running in port: " + PORT);
