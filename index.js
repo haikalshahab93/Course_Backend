@@ -7,6 +7,7 @@ const applyMiddleware = require("./middleware/index");
 
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
+const sliderRoutes = require("./routes/sliderRoutes");
 
 const app = express();
 
@@ -17,7 +18,7 @@ const PORT = process.env.PORT;
 app.use(express.json());
 
 app.get("/api", (req, res) => {
-  res.send("Selamat datang di API akuh");
+  res.send("Selamat datang di API HRH");
 });
 
 
@@ -26,8 +27,8 @@ app.get("/api", (req, res) => {
 // app.use("/products", productController);
 
 app.use("/auth", authRoutes);
-app.use("/profile",authMiddleware,profileRoutes
-);
+app.use("/profile",authMiddleware,profileRoutes);
+app.use("/slider",authMiddleware,sliderRoutes);
 
 app.listen(PORT, () => {
   console.log("Express API running in port: " + PORT);
