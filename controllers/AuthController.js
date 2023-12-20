@@ -7,12 +7,7 @@ const prisma = new PrismaClient();
 const Joi = require("joi");
 const { sendVerificationEmail } = require("../services/mailService");
 
-const {
-  JWT_SIGN,
-  JWT_REFRESH_SIGN,
-  ACCESS_TOKEN_EXPIRATION,
-  REFRESH_TOKEN_EXPIRATION,
-} = require("../config/jwt");
+const {JWT_SIGN,JWT_REFRESH_SIGN,ACCESS_TOKEN_EXPIRATION,REFRESH_TOKEN_EXPIRATION} = require("../config/jwt");
 
 const successResponse = (res, message, data = null) => {
   const response = { message };
@@ -31,14 +26,8 @@ const validateRegistration = (data) => {
     username: Joi.string().required(),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
-    name: Joi.string().required(),
-    phone: Joi.string()
-      .pattern(/^\+62\d+/)
-      .message("Phone number must be in the +62 format")
-      .required(),
-    role: Joi.string().optional(),
-    provinceId: Joi.number().integer().required(),
-    additionalInfo: Joi.string().optional(),
+    fullName: Joi.string().required(),
+    role: Joi.string().optional()
   });
 
   const { error } = schema.validate(data, { abortEarly: false });
@@ -70,92 +59,81 @@ const register = async (req, res) => {
       username,
       email,
       password,
-      name,
-      phone,
+      fullName,
       role,
-      provinceId,
-      additionalInfo,
     } = req.body;
 
-    const existingUserAuthByUsername = await prisma.userAuth.findUnique({
-      where: { Username: username },
+    const existingUser = await prisma.user.findUnique({
+      where: { email: email },
     });
-    if (existingUserAuthByUsername) {
-      return errorResponse(res, "Username already exists");
-    }
-
-    const existingUserAuthByEmail = await prisma.userAuth.findUnique({
-      where: { Email: email },
-    });
-    if (existingUserAuthByEmail) {
+    if (existingUser) {
       return errorResponse(res, "Email already exists");
     }
 
-    const provinceExists = await prisma.province.findUnique({
-      where: { ProvinceID: parseInt(provinceId) },
-    });
-    if (!provinceExists) {
-      return errorResponse(res, "Invalid ProvinceID");
-    }
+    const verificationToken = crypto.randomBytes(32).toString("hex")
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    await prisma.$transaction(async (prisma) => {
-      const verificationToken = crypto.randomBytes(32).toString("hex");
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const newUserAuth = await prisma.userAuth.create({
-        data: {
-          Username: username,
-          Email: email,
-          Password: hashedPassword,
-          VerificationToken: verificationToken,
-          Role: role || "user",
-        },
-      });
-
-      const newUser = await prisma.user.create({
-        data: {
-          ProvinceID: parseInt(provinceId),
-          Name: name,
-          Email: email,
-          Phone: phone,
-          AdditionalInfo: additionalInfo,
-          UserAuth: {
-            connect: { UserAuthID: newUserAuth.UserAuthID },
-          },
-        },
-      });
-
-      await sendVerificationEmail(email, verificationToken);
-
-      successResponse(res, "User successfully registered", {
-        userId: newUser.UserID,
+    const newUser = await prisma.user.create({
+      data: {
         username,
         email,
-      });
+        password: hashedPassword,
+        VerificationToken: verificationToken,
+        role: role || "USER",
+        fullName,
+      },
+    });
+
+    const nameParts = fullName.split(" ");
+    const firstName= nameParts[0];
+    const phone = ''
+    const photo = ''
+
+    const lastName = nameParts.slice(1).join(" ");
+    const newProfile = await prisma.profile.create({
+      data: {
+        firstName: firstName || null,
+        lastName: lastName || null,
+        phone: phone || null,
+        photo: photo || null,
+        user: {
+          connect: { id: newUser.id },
+        },
+      },
+    });
+
+    await sendVerificationEmail(email, verificationToken);
+
+    successResponse(res, "User successfully registered", {
+      userId:newUser.id,
+      profileId: newProfile.id,
+      username,
+      email,
     });
   } catch (error) {
-    errorResponse(res, error.message);
+    console.error(error);
+    errorResponse(res, error.message || "Registration failed");
   }
 };
 
 const verifyEmail = async (req, res) => {
   try {
     const { token } = req.params;
-    const userAuth = await prisma.userAuth.findUnique({
+    const userAuth = await prisma.User.findUnique({
       where: { VerificationToken: token },
     });
     if (!userAuth) {
       return errorResponse(res, "Invalid verification token.");
     }
 
-    await prisma.userAuth.update({
-      where: { UserAuthID: userAuth.UserAuthID },
+    await prisma.User.update({
+      where: { id: userAuth.id },
       data: { Verified: true, VerificationToken: null },
     });
 
     successResponse(res, "Email verified successfully!");
   } catch (error) {
-    errorResponse(res, error.message);
+    errorResponse(res, error.message || "Email verification failed");
   }
 };
 
@@ -168,13 +146,13 @@ const login = async (req, res) => {
 
     const { username, password } = req.body;
 
-    const userAuth = await prisma.userAuth.findUnique({
-      where: { Username: username },
+    const userAuth = await prisma.User.findUnique({
+      where: { username: username },
     });
+    console.log(userAuth)
     if (!userAuth) {
       return errorResponse(res, "User does not exist");
     }
-
     if (!userAuth.Verified) {
       return errorResponse(
         res,
@@ -182,33 +160,21 @@ const login = async (req, res) => {
       );
     }
 
-    const isPasswordCorrect = await bcrypt.compare(password, userAuth.Password);
+    const isPasswordCorrect = await bcrypt.compare(password, userAuth.password);
     if (!isPasswordCorrect) {
       return errorResponse(res, "Password is incorrect");
     }
 
-    const accessToken = jwt.sign(
-      {
-        username: userAuth.Username,
-        id: userAuth.UserAuthID,
-        role: userAuth.Role,
-      },
-      JWT_SIGN,
-      { expiresIn: ACCESS_TOKEN_EXPIRATION }
-    );
-
-    const refreshToken = jwt.sign(
-      {
-        username: userAuth.Username,
-        id: userAuth.UserAuthID,
-        role: userAuth.Role,
-      },
-      JWT_REFRESH_SIGN,
-      { expiresIn: REFRESH_TOKEN_EXPIRATION }
-    );
+    const payload =  {
+      username: userAuth.username,
+      id: userAuth.id,
+      role: userAuth.role,
+    }
+    const accessToken = jwt.sign(payload,JWT_SIGN, { expiresIn: ACCESS_TOKEN_EXPIRATION });
+    const refreshToken = jwt.sign(payload,JWT_REFRESH_SIGN,{ expiresIn: REFRESH_TOKEN_EXPIRATION });
 
     successResponse(res, "Login successful", {
-      userId: userAuth.UserAuthID,
+      userId: userAuth.id,
       accessToken,
       refreshToken,
       accessTokenExp: ACCESS_TOKEN_EXPIRATION,

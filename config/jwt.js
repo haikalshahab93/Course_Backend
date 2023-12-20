@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const JWT_SIGN = process.env.JWT_SIGN;
 const JWT_REFRESH_SIGN = process.env.JWT_REFRESH_SIGN;
 const ACCESS_TOKEN_EXPIRATION = process.env.ACCESS_TOKEN_EXPIRATION;

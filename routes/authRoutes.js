@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const AuthController = require("../controllers/AuthController");
-const PasswordResetController = require("../controllers/PasswordResetController");
+// const PasswordResetController = require("../controllers/PasswordResetController");
 
 const { rateLimit } = require("express-rate-limit");
 
@@ -14,7 +14,7 @@ const userRateLimitStoreInstance = new UserRateLimitStore(windowMs);
 const userLoginLimiter = rateLimit({
   store: userRateLimitStoreInstance,
   windowMs: windowMs,
-  max: 5,
+  max: 25,
   skipSuccessfulRequests: true,
   message: {
     error: "Too many failed login attempts, please try again after 15 minutes.",
@@ -26,19 +26,9 @@ const userLoginLimiter = rateLimit({
   },
 });
 
-router.post("/login", userLoginLimiter, AuthController.login);
-
 router.post("/register", AuthController.register);
+router.post("/login", userLoginLimiter,AuthController.login);
 router.get("/verify-email/:token", AuthController.verifyEmail);
 
-router.post(
-  "/request-password-reset",
-  PasswordResetController.requestPasswordReset
-);
-
-router.post(
-  "/reset-password/:resetToken",
-  PasswordResetController.resetPassword
-);
 
 module.exports = router;

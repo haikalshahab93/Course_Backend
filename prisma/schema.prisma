@@ -12,17 +12,23 @@ datasource db {
 
 model User {
   id       Int      @id @default(autoincrement())
+  username String   @unique
   email    String   @unique
   password String
+  fullName String
+  Verified Boolean   @default(false)
+  VerificationToken     String?   @unique
   profile  Profile?
   role  Role?       @default(USER)
 }
 
 model Profile {
   id       Int     @id @default(autoincrement())
-  firstName String
-  lastName  String
-  userId    Int
+  firstName String?
+  lastName  String?
+  phone     String?
+  photo     String?
+  userId    Int     @unique
   user      User    @relation(fields: [userId], references: [id])
 }
 
@@ -30,4 +36,3 @@ enum Role {
   ADMIN
   USER
 }
-
