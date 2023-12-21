@@ -18,7 +18,7 @@ dotenv.config();
 const PORT = process.env.PORT;
 
 app.use(express.json());
-app.use("/slider/", express.static(path.join(__dirname, "images")));
+app.use("/slider/course", express.static(path.join(__dirname, "src/course")));
 
 app.get("/api", (req, res) => {
   res.send("Selamat datang di API HRH");
