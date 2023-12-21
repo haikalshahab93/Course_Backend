@@ -1,6 +1,5 @@
 // controllers/sliderController.js
 const { PrismaClient } = require('@prisma/client');
-const upload = require('../config/multerConfig');
 
 const prisma = new PrismaClient();
 

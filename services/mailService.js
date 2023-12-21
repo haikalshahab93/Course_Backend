@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const smtp = require("nodemailer-smtp-transport");
 
-const FE_URL = process.env.FE_URL;
+const BE_URL = process.env.BE_URL;
 
 const transporter = nodemailer.createTransport(
   smtp({
@@ -24,7 +24,7 @@ const sendMail = async (options) => {
 };
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `${FE_URL}/verify-email/${token}`;
+  const verificationLink = `${BE_URL}/${token}`;
 
   const mailOptions = {
     from: "revouhaikal@gmail.com",

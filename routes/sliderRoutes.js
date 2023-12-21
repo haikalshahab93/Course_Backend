@@ -8,7 +8,7 @@ const SliderController = require("../controllers/SliderController");
 router.get('/', SliderController.getAllSliders);
 
 // Endpoint untuk membuat slider baru
-router.post('/',upload.single('imageUrl'), SliderController.createSlider);
+router.post('/',upload.single('image'), SliderController.createSlider);
 
 // Endpoint untuk mendapatkan detail slider berdasarkan ID
 router.get('/:sliderid', SliderController.getSliderById);
