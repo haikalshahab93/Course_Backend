@@ -33,14 +33,14 @@ const createProfile = async (req, res) => {
 };
 
 const getProfileById = async (req, res) => {
-  console.log(req.user.id)
+  const id = req.params.profileRequestId;
+  
     try {
       const userProfile = await prisma.Profile.findUnique({
         where: {
           userId: parseInt(id),
         },
       });
-      console.log(userProfile)
   
       if (!userProfile) {
         return res.status(404).json({ error: 'Profile not found' });
