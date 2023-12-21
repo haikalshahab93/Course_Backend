@@ -25,7 +25,8 @@ const createSlider = async (req, res) => {
       return res.status(400).json({ error: 'Tidak ada file yang di-upload' });
     }
 
-    const imageUrl = req.file.path;
+    const imageUrl = req.file.filename;
+    console.log(imageUrl)
     const newSlider = await prisma.slider.create({
       data: {
         name,

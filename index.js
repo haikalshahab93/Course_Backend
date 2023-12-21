@@ -5,6 +5,7 @@ const authMiddleware = require("./middleware/authenticationMiddleware");
 const authorizationMiddleware = require("./middleware/authorizationMiddleware");
 const errorFormatter = require("./middleware/errorFormatter");
 const applyMiddleware = require("./middleware/index");
+const path = require("path");
 
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
@@ -17,6 +18,7 @@ dotenv.config();
 const PORT = process.env.PORT;
 
 app.use(express.json());
+app.use("/slider/", express.static(path.join(__dirname, "images")));
 
 app.get("/api", (req, res) => {
   res.send("Selamat datang di API HRH");
