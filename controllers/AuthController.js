@@ -54,7 +54,6 @@ const register = async (req, res) => {
     if (validationError) {
       return errorResponse(res, validationError);
     }
-
     const {
       username,
       email,
@@ -104,7 +103,7 @@ const register = async (req, res) => {
 
     await sendVerificationEmail(email, verificationToken);
 
-    successResponse(res, "User successfully registered", {
+    successResponse(res, "User successfully registered, Verification Check Email", {
       userId:newUser.id,
       profileId: newProfile.id,
       username,

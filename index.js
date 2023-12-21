@@ -10,6 +10,7 @@ const path = require("path");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const sliderRoutes = require("./routes/sliderRoutes");
+const sliderdetailRoutes = require("./routes/sliderdetailRoutes");
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.get("/api", (req, res) => {
 app.use("/auth", authRoutes)
 app.use("/profile",authMiddleware,profileRoutes)
 app.use("/slider",sliderRoutes)
+app.use("/sliderdetail",sliderRoutes)
 
 
 if (PORT){

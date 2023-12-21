@@ -24,7 +24,7 @@ const sendMail = async (options) => {
 };
 
 const sendVerificationEmail = async (email, token) => {
-  const verificationLink = `${BE_URL}/${token}`;
+  const verificationLink = `${BE_URL}verify-email/${token}`;
 
   const mailOptions = {
     from: "revouhaikal@gmail.com",
