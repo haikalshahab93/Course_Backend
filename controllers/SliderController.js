@@ -13,7 +13,7 @@ const getAllSliders = async (req, res) => {
     res.json(sliders);
   } catch (error) {
     console.error('Error fetching sliders:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ error: 'Internal Server Errors' });
   }
 };
 
