@@ -22,16 +22,13 @@ app.get("/api", (req, res) => {
   res.send("Selamat datang di API HRH");
 });
 
+app.use("/auth", authRoutes)
+app.use("/profile",authMiddleware,profileRoutes)
+app.use("/slider",sliderRoutes)
 
-// const productController = require("./src/product/product.controller");
 
-// app.use("/products", productController);
-
-app.use("/auth", authRoutes);
-app.use("/profile",authMiddleware,profileRoutes);
-app.use("/slider",sliderRoutes);
-
-const p = 7500
-app.listen(p, () => {
-  console.log("Express API running in port: " + p);
-});
+if (PORT){
+  app.listen(PORT, () => {
+    console.log("Express API running in port: " + PORT);
+  });
+}
