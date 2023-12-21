@@ -1,13 +1,12 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const { successResponse, errorResponse } = require("../utils/response");
+
 const getAllUsers = async (req, res) => {
   try {
     const { searchBy, query, name, email, phone, location, page, limit } =
       req.query;
-
-    let where = {};
-
+    let where = {}
     if (name) {
       where.Name = { contains: name, mode: "insensitive" };
     }

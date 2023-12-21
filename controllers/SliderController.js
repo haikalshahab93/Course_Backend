@@ -1,5 +1,6 @@
 // controllers/sliderController.js
 const { PrismaClient } = require('@prisma/client');
+const upload = require('../config/multerConfig');
 
 const prisma = new PrismaClient();
 
@@ -7,7 +8,7 @@ const prisma = new PrismaClient();
 const getAllSliders = async (req, res) => {
   try {
     const sliders = await prisma.slider.findMany({
-      include: { sliderDetail: true },
+      include: { sliderDetails: true },
     });
     res.json(sliders);
   } catch (error) {
@@ -18,16 +19,21 @@ const getAllSliders = async (req, res) => {
 
 // Membuat slider baru beserta detailnya
 const createSlider = async (req, res) => {
-  const { name, imageUrl, description, sliderDetails } = req.body;
-  try {
+  const { name, description, sliderDetails} = req.body;
+  try { 
+    if (!req.file) {
+      return res.status(400).json({ error: 'Tidak ada file yang di-upload' });
+    }
+
+    const imageUrl = req.file.path;
     const newSlider = await prisma.slider.create({
       data: {
         name,
         imageUrl,
         description,
-        sliderDetail: { create: sliderDetails },
+        sliderDetails: { create: sliderDetails },
       },
-      include: { sliderDetail: true },
+      include: { sliderDetails: true },
     });
     res.json(newSlider);
   } catch (error) {

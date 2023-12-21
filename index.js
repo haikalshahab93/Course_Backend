@@ -1,5 +1,6 @@
 const express = require("express");
 const dotenv = require("dotenv");
+const upload = require('./config/multerConfig');
 const authMiddleware = require("./middleware/authenticationMiddleware");
 const authorizationMiddleware = require("./middleware/authorizationMiddleware");
 const errorFormatter = require("./middleware/errorFormatter");
@@ -30,6 +31,7 @@ app.use("/auth", authRoutes);
 app.use("/profile",authMiddleware,profileRoutes);
 app.use("/slider",sliderRoutes);
 
-app.listen(PORT, () => {
-  console.log("Express API running in port: " + PORT);
+const p = 7500
+app.listen(p, () => {
+  console.log("Express API running in port: " + p);
 });
