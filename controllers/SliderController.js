@@ -1,5 +1,6 @@
 // controllers/sliderController.js
 const { PrismaClient } = require('@prisma/client');
+const upload = require('../config/multerConfig');
 
 const prisma = new PrismaClient();
 
@@ -12,26 +13,23 @@ const getAllSliders = async (req, res) => {
     res.json(sliders);
   } catch (error) {
     console.error('Error fetching sliders:', error);
-    res.status(500).json({ error: 'Internal Server Errors' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
 // Membuat slider baru beserta detailnya
 const createSlider = async (req, res) => {
-  const { name, description, sliderDetails} = req.body;
-  try { 
-    if (!req.file) {
-      return res.status(400).json({ error: 'Tidak ada file yang di-upload' });
-    }
+  const { name, description,imageUrl} = req.body;
+  try {
+    if(!req.file){
+      
 
-    const imageUrl = req.file.filename;
-    console.log(imageUrl)
-    const newSlider = await prisma.slider.create({
+    } 
+    const newSlider = await prisma.Slider.create({
       data: {
         name,
         imageUrl,
         description,
-        sliderDetails: { create: sliderDetails },
       },
       include: { sliderDetails: true },
     });
@@ -44,12 +42,11 @@ const createSlider = async (req, res) => {
 
 // Mendapatkan detail slider berdasarkan ID
 const getSliderById = async (req, res) => {
-
-  const  {sliderid}  = req.params;
+  const { id } = req.params;
   try {
     const slider = await prisma.slider.findUnique({
-      where: { id: parseInt(sliderid) },
-      include: { sliderDetails: true },
+      where: { id: parseInt(id) },
+      include: { sliderDetail: true },
     });
     if (!slider) {
       res.status(404).json({ error: 'Slider not found' });
@@ -68,7 +65,7 @@ const deleteSliderById = async (req, res) => {
   try {
     const deletedSlider = await prisma.slider.delete({
       where: { id: parseInt(id) },
-      include: { sliderDetails: true },
+      include: { sliderDetail: true },
     });
     res.json(deletedSlider);
   } catch (error) {

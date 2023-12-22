@@ -32,101 +32,96 @@ const createProfile = async (req, res) => {
   }
 };
 
-const getProfileById = async (req, res) => {
-  const id = req.params.profileRequestId;
-  
-    try {
-      const userProfile = await prisma.Profile.findUnique({
-        where: {
-          id: parseInt(id),
-        },
-      });
-  
-      if (!userProfile) {
-        return res.status(404).json({ error: 'Profile not found' });
-      }
-  
-      res.json(userProfile);
-    } catch (error) {
-      console.error('Error fetching profile by ID:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
 
+const getUserProfileByUserId = async (req,res) => {
+  try {
+    const userAndProfile = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        profile: true,
+      },
+    });
+    res.status(200).json({ data: userAndProfile }); 
+  } catch (error) {
+    throw new Error(`Error getting user and profile: ${error.message}`);
+  }
+};
+
+const getProfileById = async (req, res) => {
+  token  = req.headers.authorization ;
+  try {
+    // Verifikasi token dan dapatkan payload
+    const decoded = jwt.verify(token, process.env.JWT_SIGN); // Gantilah 'your-secret-key' dengan kunci rahasia yang digunakan untuk membuat token
+
+    // Menyimpan informasi pengguna dari token ke objek req.user untuk digunakan oleh rute berikutnya
+    req.user = decoded;
+
+    next();
+  } catch (error) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+}
 // Mengupdate profil berdasarkan ID
 const updateProfileById = async (req, res) => {
-    const {firstName,lastName,phone,photo} = req.body
-    const id  = req.params.profileRequestId;  
-    console.log(req.body)
-    try {
-      // Temukan profil yang akan diupdate
-      const existingProfile = await prisma.profile.findUnique({
-        where: {
-          id: parseInt(id),
-        },
-      });
-      
-      console.log(existingProfile)
-      // Jika profil tidak ditemukan, kembalikan respons 404
-      if (!existingProfile) {
-        return res.status(404).json({ error: 'Profile not found' });
-      }
-  
-      // Update hanya bidang yang diberikan
-      const updatedProfile = await prisma.profile.update({
-        where: {
-          id: parseInt(id),
-        },
-        data: {
+  const { firstName, lastName, phone, photo } = req.body
+  try {
+    // Temukan profil yang akan diupdate
+    const existingProfile = await prisma.user.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+      profle:{
+        update:{  
           firstName: firstName || existingProfile.firstName,
           lastName: lastName || existingProfile.lastName,
           phone: phone || existingProfile.phone,
           photo: photo || existingProfile.photo,
-        },
-      });
-  
-      res.json(updatedProfile);
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
-
-
-  const deleteProfileById = async (req, res) => {
-    const { id } = req.params;
-  
-    try {
-      // Temukan profil yang akan dihapus
-      const existingProfile = await prisma.profile.findUnique({
-        where: {
-          id: parseInt(id),
-        },
-      });
-  
-      // Jika profil tidak ditemukan, kembalikan respons 404
-      if (!existingProfile) {
-        return res.status(404).json({ error: 'Profile not found' });
+        }
       }
-  
-      // Hapus profil
-      await prisma.profile.delete({
-        where: {
-          id: parseInt(id),
-        },
-      });
-  
-      res.json({ message: 'Profile deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting profile:', error);
-      res.status(500).json({ error: 'Internal Server Error' });
+    });
+    res.json(updatedProfile);
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+const deleteProfileById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Temukan profil yang akan dihapus
+    const existingProfile = await prisma.profile.findUnique({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    // Jika profil tidak ditemukan, kembalikan respons 404
+    if (!existingProfile) {
+      return res.status(404).json({ error: 'Profile not found' });
     }
-  };
+
+    // Hapus profil
+    await prisma.profile.delete({
+      where: {
+        id: parseInt(id),
+      },
+    });
+
+    res.json({ message: 'Profile deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting profile:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 module.exports = {
   getAllProfiles,
   createProfile,
   updateProfileById,
   getProfileById,
-  deleteProfileById
+  deleteProfileById,
+  getUserProfileByUserId
 };

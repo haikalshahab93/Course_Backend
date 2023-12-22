@@ -1,11 +1,11 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const upload = require('./config/multerConfig');
 const authMiddleware = require("./middleware/authenticationMiddleware");
 const authorizationMiddleware = require("./middleware/authorizationMiddleware");
 const errorFormatter = require("./middleware/errorFormatter");
 const applyMiddleware = require("./middleware/index");
 const path = require("path");
+const multer = require('multer');
 
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
@@ -20,7 +20,7 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use("/slider/course", express.static(path.join(__dirname, "src/course")));
-app.use("/slider/photo", express.static(path.join(__dirname, "src/photo")));
+// app.use("/slider/photo", express.static(path.join(__dirname, "src/photo")));
 
 app.get("/api", (req, res) => {
   res.send("Selamat datang di API HRH");

@@ -29,6 +29,7 @@ const userLoginLimiter = rateLimit({
 router.post("/register", AuthController.register);
 router.post("/login", userLoginLimiter,AuthController.login);
 router.get("/verify-email/:token", AuthController.verifyEmail);
+router.get("/getProfile/$id", AuthController.getUserProfileByUserId);
 
 
 module.exports = router;

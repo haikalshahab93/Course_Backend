@@ -81,6 +81,16 @@ const register = async (req, res) => {
         role: role || "USER",
         fullName,
       },
+      include:{
+        profile:{
+          create:{
+            firstName: '',
+            lastName:'',
+            phone:'',
+            photo:''
+          }
+        }
+      }
     });
 
     const nameParts = fullName.split(" ");
@@ -147,8 +157,11 @@ const login = async (req, res) => {
 
     const userAuth = await prisma.User.findUnique({
       where: { username: username },
+      inclue:{
+        profile:true
+      }
     });
-    console.log(userAuth)
+
     if (!userAuth) {
       return errorResponse(res, "User does not exist");
     }
@@ -185,8 +198,25 @@ const login = async (req, res) => {
   }
 };
 
+
+const getUserProfileByUserId = async (req,res) => {
+  try {
+    const userAndProfile = await prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        profile: true,
+      },
+    });
+
+    return userAndProfile;
+  } catch (error) {
+    throw new Error(`Error getting user and profile: ${error.message}`);
+  }
+};
+
 module.exports = {
   register,
   verifyEmail,
   login,
+  getUserProfileByUserId
 };
