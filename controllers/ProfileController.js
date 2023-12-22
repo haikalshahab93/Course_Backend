@@ -55,8 +55,8 @@ const getProfileById = async (req, res) => {
 
 // Mengupdate profil berdasarkan ID
 const updateProfileById = async (req, res) => {
-    const { id } = req.params;
-    const { name, email, bio } = req.body;
+    const {firstName,lastName,phone,photo} = req.body
+    const id  = req.params.profileRequestId;  
   
     try {
       // Temukan profil yang akan diupdate
@@ -65,7 +65,8 @@ const updateProfileById = async (req, res) => {
           id: parseInt(id),
         },
       });
-  
+      
+      console.log(existingProfile)
       // Jika profil tidak ditemukan, kembalikan respons 404
       if (!existingProfile) {
         return res.status(404).json({ error: 'Profile not found' });

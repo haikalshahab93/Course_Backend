@@ -20,6 +20,7 @@ const PORT = process.env.PORT;
 
 app.use(express.json());
 app.use("/slider/course", express.static(path.join(__dirname, "src/course")));
+app.use("/slider/photo", express.static(path.join(__dirname, "src/photo")));
 
 app.get("/api", (req, res) => {
   res.send("Selamat datang di API HRH");
