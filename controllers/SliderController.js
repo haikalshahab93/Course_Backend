@@ -42,11 +42,11 @@ const createSlider = async (req, res) => {
 
 // Mendapatkan detail slider berdasarkan ID
 const getSliderById = async (req, res) => {
-  const { id } = req.params;
+  const {sliderid} = req.params;
   try {
     const slider = await prisma.slider.findUnique({
-      where: { id: parseInt(id) },
-      include: { sliderDetail: true },
+      where: { id: parseInt(sliderid) },
+      include: { sliderDetails: true },
     });
     if (!slider) {
       res.status(404).json({ error: 'Slider not found' });
@@ -65,7 +65,7 @@ const deleteSliderById = async (req, res) => {
   try {
     const deletedSlider = await prisma.slider.delete({
       where: { id: parseInt(id) },
-      include: { sliderDetail: true },
+      include: { sliderDetails: true },
     });
     res.json(deletedSlider);
   } catch (error) {
