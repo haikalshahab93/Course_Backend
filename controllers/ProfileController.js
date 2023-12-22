@@ -38,7 +38,7 @@ const getProfileById = async (req, res) => {
     try {
       const userProfile = await prisma.Profile.findUnique({
         where: {
-          userId: parseInt(id),
+          id: parseInt(id),
         },
       });
   
