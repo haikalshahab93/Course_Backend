@@ -82,14 +82,7 @@ const register = async (req, res) => {
         fullName,
       },
       include:{
-        profile:{
-          create:{
-            firstName: '',
-            lastName:'',
-            phone:'',
-            photo:''
-          }
-        }
+         profile:true
       }
     });
 

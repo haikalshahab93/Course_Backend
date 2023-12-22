@@ -10,6 +10,7 @@ const multer = require('multer');
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const sliderRoutes = require("./routes/sliderRoutes");
+const videoRoutes = require("./routes/videoRoutes");
 const sliderdetailRoutes = require("./routes/sliderdetailRoutes");
 
 const app = express();
@@ -30,6 +31,7 @@ app.use("/auth", authRoutes)
 app.use("/profile",authMiddleware,profileRoutes)
 app.use("/slider",sliderRoutes)
 app.use("/sliderdetail",sliderRoutes)
+app.use("/video",videoRoutes)
 
 
 if (PORT){
