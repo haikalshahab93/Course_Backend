@@ -57,7 +57,7 @@ const getProfileById = async (req, res) => {
 const updateProfileById = async (req, res) => {
     const {firstName,lastName,phone,photo} = req.body
     const id  = req.params.profileRequestId;  
-  
+    console.log(req.body)
     try {
       // Temukan profil yang akan diupdate
       const existingProfile = await prisma.profile.findUnique({
