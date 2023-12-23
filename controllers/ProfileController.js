@@ -35,6 +35,8 @@ const createProfile = async (req, res) => {
 
 const getUserProfileByUserId = async (req,res) => {
   try {
+    const userId = parseInt(req.params.userId);
+    console.log(userId)
     const userAndProfile = await prisma.user.findUnique({
       where: { id: userId },
       include: {
